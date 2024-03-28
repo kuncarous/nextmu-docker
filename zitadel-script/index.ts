@@ -2,6 +2,8 @@ import { createServiceAccountInterceptor, createManagementClient, ManagementServ
 import { ServiceAccount } from "@zitadel/node/credentials";
 import { Metadata } from "nice-grpc-common";
 import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:url";
+import axios from "axios";
 
 // Enums (since can't be imported in linux)
 enum OIDCResponseType {
@@ -220,5 +222,18 @@ async function start()
     );
 }
 
-// Delay it 10s
-setTimeout(start, 10000);
+let attempts = 0;
+async function run(): Promise<void>
+{
+    if (++attempts > 30) return;
+    
+    const response = await axios.get(resolve(api, '/debug/healthz'), { timeout: 5000 });
+    if (response.data !== 'ok') {
+        setTimeout(() => run(), 5000);
+        return;
+    }
+
+    await start();
+}
+
+run();

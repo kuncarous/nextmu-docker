@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  nextmu-auth:
+    restart: 'always'
+    networks:
+      - 'nextmu'
+    image: 'ghcr.io/zitadel/zitadel:latest'
+    command: 'start-from-init --masterkey "tW19Pt0iifA28EGdChFEnFPQojhbelQY" --tlsMode disabled'
+    environment:
+      - 'ZITADEL_DATABASE_POSTGRES_HOST=nextmu-postgres'
+      - 'ZITADEL_DATABASE_POSTGRES_PORT=5432'
+      - 'ZITADEL_DATABASE_POSTGRES_DATABASE=zitadel'
+      - 'ZITADEL_DATABASE_POSTGRES_USER_USERNAME=zitadel'
+      - 'ZITADEL_DATABASE_POSTGRES_USER_PASSWORD=dgm9@e_hV2_TsYJQ-zqZ@vF@CAEpPRZG'
+      - 'ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE=disable'
+      - 'ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME=postgres'
+      - 'ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD=Wg5NkG53xtd2N0q0eJsob5l87Hkkx1Gn'
+      - 'ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE=disable'
+      - 'ZITADEL_EXTERNALSECURE=false'
+      - 'ZITADEL_FIRSTINSTANCE_MACHINEKEYPATH=/machinekey/zitadel-admin-sa.json'
+      - 'ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_USERNAME=zitadel-admin-sa'
+      - 'ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_NAME=Admin'
+      - 'ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINEKEY_TYPE=1'
+    volumes:
+      - ./zitadel-machinekey:/machinekey
+    depends_on:
+      nextmu-postgres:
+        condition: 'service_healthy'
+    ports:
+      - '8080:8080'
+      
+  nextmu-postgres:
+    restart: 'always'
+    image: postgres:16-alpine
+    environment:
+      - 'POSTGRES_USER=postgres'
+      - 'POSTGRES_PASSWORD=Wg5NkG53xtd2N0q0eJsob5l87Hkkx1Gn'
+    networks:
+      - 'nextmu'
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      interval: '10s'
+      timeout: '30s'
+      retries: 5
+      start_period: '20s'
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - '127.0.0.1:5432:5432'
+
+  nextmu-mongodb:
+    restart: 'always'
+    image: mongo:7-jammy
+    environment:
+      - 'MONGO_INITDB_ROOT_USERNAME=root'
+      - 'MONGO_INITDB_ROOT_PASSWORD=Gro5kGAI9bHfPDgYQX3EEdPrOgNeCX2a'
+    networks:
+      - 'nextmu'
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongodb://$$MONGO_INITDB_ROOT_USERNAME:$$MONGO_INITDB_ROOT_PASSWORD@localhost:27017/test?authSource=admin --quiet | grep -q 1
+      interval: '10s'
+      timeout: '10s'
+      retries: 5
+      start_period: '20s'
+    volumes:
+      - ./mongodb-data:/data
+    ports:
+      - '127.0.0.1:27017:27017'
+
+  nextmu-redis:
+    restart: 'always'
+    image: redis:7-alpine
+    environment:
+      - 'REDIS_PASSWORD=Ug36SXJnSAXSH3j0Vlyr4WdLkPVAnj5e'
+    networks:
+      - 'nextmu'
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli", "ping"]
+      interval: '10s'
+      timeout: '5s'
+      retries: 3
+      start_period: '20s'
+    volumes:
+      - ./redis-data:/data
+    ports:
+      - '127.0.0.1:6379:6379'
+
+networks:
+  nextmu:

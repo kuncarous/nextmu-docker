@@ -1,7 +1,7 @@
 import { createServiceAccountInterceptor, createManagementClient, ManagementServiceClient, createAdminClient, AdminServiceClient } from "@zitadel/node/api";
 import { ServiceAccount } from "@zitadel/node/credentials";
 import { Metadata } from "nice-grpc-common";
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:url";
 import axios from "axios";
 
@@ -116,7 +116,7 @@ async function createOrFindProject(managementClient: ManagementServiceClient, me
 
 async function createOrFindWebApplication(managementClient: ManagementServiceClient, projectId: string, metadata: Metadata)
 {
-    const listResponse = await managementClient.listApps({}, { metadata });
+    const listResponse = await managementClient.listApps({ projectId }, { metadata });
     const app = listResponse.result.find(proj => proj.name === 'Web');
     if (app != null) return {
         appId: app.id,
@@ -154,7 +154,7 @@ async function createOrFindWebApplication(managementClient: ManagementServiceCli
 
 async function createOrFindGameApplication(managementClient: ManagementServiceClient, projectId: string, metadata: Metadata)
 {
-    const listResponse = await managementClient.listApps({}, { metadata });
+    const listResponse = await managementClient.listApps({ projectId }, { metadata });
     const app = listResponse.result.find(proj => proj.name === 'Game');
     if (app != null) return {
         appId: app.id,
@@ -207,6 +207,7 @@ async function start()
     const webApp = await createOrFindWebApplication(managementClient, projectId, metadata);
     const gameApp = await createOrFindGameApplication(managementClient, projectId, metadata);
 
+    try { mkdirSync('../zitadel-output'); } catch(e) {}
     writeFileSync(
         '../zitadel-output/config.json',
         JSON.stringify(
@@ -222,11 +223,14 @@ async function start()
     );
 }
 
+const maxAttempts = 30;
 let attempts = 0;
+
 async function run(): Promise<void>
 {
-    if (++attempts > 30) return;
+    if (++attempts > maxAttempts) return;
     
+    console.log(`Checking Zitadel if available (${attempts}/${maxAttempts} attempts)`);
     const response = await axios.get(resolve(api, '/debug/healthz'), { timeout: 5000 });
     if (response.data !== 'ok') {
         setTimeout(() => run(), 5000);
@@ -234,6 +238,7 @@ async function run(): Promise<void>
     }
 
     await start();
+    console.log(`Finished, check zitadel-output folder.`);
 }
 
 run();

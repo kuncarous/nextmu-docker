@@ -218,7 +218,9 @@ async function start()
                 },
                 web: webApp,
                 game: gameApp,
-            }
+            },
+            undefined,
+            '\t'
         )
     );
 }

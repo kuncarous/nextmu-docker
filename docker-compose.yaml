@@ -6,22 +6,9 @@ services:
     networks:
       - 'nextmu'
     image: 'ghcr.io/zitadel/zitadel:latest'
-    command: 'start-from-init --masterkey "tW19Pt0iifA28EGdChFEnFPQojhbelQY" --tlsMode disabled'
-    environment:
-      - 'ZITADEL_DATABASE_POSTGRES_HOST=nextmu-postgres'
-      - 'ZITADEL_DATABASE_POSTGRES_PORT=5432'
-      - 'ZITADEL_DATABASE_POSTGRES_DATABASE=zitadel'
-      - 'ZITADEL_DATABASE_POSTGRES_USER_USERNAME=zitadel'
-      - 'ZITADEL_DATABASE_POSTGRES_USER_PASSWORD=dgm9@e_hV2_TsYJQ-zqZ@vF@CAEpPRZG'
-      - 'ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE=disable'
-      - 'ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME=postgres'
-      - 'ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD=Wg5NkG53xtd2N0q0eJsob5l87Hkkx1Gn'
-      - 'ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE=disable'
-      - 'ZITADEL_EXTERNALSECURE=false'
-      - 'ZITADEL_FIRSTINSTANCE_MACHINEKEYPATH=/machinekey/zitadel-admin-sa.json'
-      - 'ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_USERNAME=zitadel-admin-sa'
-      - 'ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINE_NAME=Admin'
-      - 'ZITADEL_FIRSTINSTANCE_ORG_MACHINE_MACHINEKEY_TYPE=1'
+    command: 'start-from-init --masterkeyFromEnv --tlsMode disabled'
+    env_file:
+      - ./environments/zitadel.env
     volumes:
       - ./zitadel-machinekey:/machinekey
     depends_on:
@@ -33,9 +20,8 @@ services:
   nextmu-postgres:
     restart: 'always'
     image: postgres:16-alpine
-    environment:
-      - 'POSTGRES_USER=postgres'
-      - 'POSTGRES_PASSWORD=Wg5NkG53xtd2N0q0eJsob5l87Hkkx1Gn'
+    env_file:
+      - ./environments/postgres.env
     networks:
       - 'nextmu'
     healthcheck:
@@ -52,9 +38,8 @@ services:
   nextmu-mongodb:
     restart: 'always'
     image: mongo:7-jammy
-    environment:
-      - 'MONGO_INITDB_ROOT_USERNAME=root'
-      - 'MONGO_INITDB_ROOT_PASSWORD=Gro5kGAI9bHfPDgYQX3EEdPrOgNeCX2a'
+    env_file:
+      - ./environments/mongo.env
     networks:
       - 'nextmu'
     healthcheck:
@@ -71,8 +56,8 @@ services:
   nextmu-redis:
     restart: 'always'
     image: redis:7-alpine
-    environment:
-      - 'REDIS_PASSWORD=Ug36SXJnSAXSH3j0Vlyr4WdLkPVAnj5e'
+    env_file:
+      - ./environments/redis.env
     networks:
       - 'nextmu'
     healthcheck:

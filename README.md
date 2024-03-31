@@ -1,10 +1,9 @@
 # NextMU Docker for Essential Services
 
 ## Installation
-First download and install Docker, after you installed Docker you can use `docker-compose up -d` command and it will start all the essential services.
-After all services are running you need to run `zitadel-script`, follow [Script](#script) section instructions.
+First download and install Docker and Node.js, after you finish follow the [Script](#script) section instructions.
 
-### Desktop Mode
+### Docker Desktop
 #### Windows
 ```https://docs.docker.com/desktop/install/windows-install/```
 
@@ -14,10 +13,15 @@ After all services are running you need to run `zitadel-script`, follow [Script]
 #### MacOS
 ```https://docs.docker.com/desktop/install/mac-install/```
 
-## Script
-Be sure you have Node.js installed (at least Node.js 16.x or newer), go to `zitadel-script` and run `npm install`, after finish the packages installations you can run `npm run start`, wait it to finish and it will generate the `output.json` file which contains all the required information including the admin credentials with the initial password to access Zitadel (you can access it through http://localhost:8080 url).
+### Node.js
+Install Node.js v16.x or newer.
 
-If you want you can just run the following commands:
+```https://nodejs.org/en```
+
+## Script
+After you installed Docker and Node.js run the compatible script and it will generate the environment files for each service, initialize the docker instances and configure Zitadel.
+After it finish everything you can find your Zitadel Admin credentials in `./script-output/portal/config.json`, also you will find the required configuration for a manual setup of the Remix website (`https://github.com/kuncarous/nextmu-remix`)
+
 #### Windows
 ```
 ./script.bat

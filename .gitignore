@@ -1,7 +1,8 @@
+/environments
 /postgres-data
 /redis-data
 /mongodb-data
-/zitadel-output
 /zitadel-machinekey
-/zitadel-script/package-lock.json
-/zitadel-script/node_modules
+/script/package-lock.json
+/script/node_modules
+/script-output

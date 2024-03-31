@@ -1,14 +1,17 @@
 {
-  "name": "zitadel",
+  "name": "nextmu-script",
   "version": "1.0.0",
-  "description": "Initialize organization, project and applications, generate required data in ../zitadel-output folder",
+  "description": "Initialize required environments for essential services and configure Zitadel",
   "scripts": {
-    "start": "ts-node index.ts"
+    "start": "ts-node index.ts",
+    "start:init": "cross-env RUN_MODE=init ts-node index.ts",
+    "start:zitadel": "cross-env RUN_MODE=zitadel ts-node index.ts"
   },
   "author": "SirMaster",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.11.30",
+    "cross-env": "^7.0.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.3"
   },

@@ -3,9 +3,9 @@
     "configurations": [
         {
             "type": "node-terminal",
-            "name": "Run Script: dev",
+            "name": "Run Script: Zitadel",
             "request": "launch",
-            "command": "npm run start",
+            "command": "npm run start:zitadel",
             "cwd": "${workspaceFolder}"
         }
     ]

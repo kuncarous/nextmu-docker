@@ -363,7 +363,7 @@ async function runZitadelScript()
 
     if (!!updateApi.clientSecret) {
         writeFileSync(
-            path.resolve(zitadelOutputDir, 'portal/web-secret.json'),
+            path.resolve(zitadelOutputDir, 'portal/update-secret.json'),
             JSON.stringify(
                 {
                     updateApi: {
@@ -434,7 +434,7 @@ let MongoEnv: IMongoEnv = {};
 let PostgresEnv: IPostgresEnv = {};
 let ZitadelEnv: IZitadelEnv = {};
 
-function generateRandomPassword(length: number = 32, characters: string = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!-&^_[]{}')
+function generateRandomPassword(length: number = 32, characters: string = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!')
 {
     return Array.from(crypto.getRandomValues(new Uint32Array(length)))
         .map((x) => characters[x % characters.length])
@@ -456,7 +456,8 @@ async function generateRedisEnvironment()
     
     writeFileSync(jsonPath, JSON.stringify(RedisEnv));
     writeFileSync(envPath,
-`REDIS_PASSWORD="${RedisEnv.password}"`
+`REDIS_PASSWORD="${RedisEnv.password}"
+REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL`
     );
 }
 

@@ -25,7 +25,7 @@ services:
     networks:
       - 'nextmu'
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod"]
+      test: ["CMD-SHELL", "pg_isready", "-d", "db_prod", "-U", "$$POSTGRES_USER"]
       interval: '10s'
       timeout: '30s'
       retries: 5
@@ -55,13 +55,13 @@ services:
 
   nextmu-redis:
     restart: 'always'
-    image: redis:7-alpine
+    image: bitnami/redis:7.0
     env_file:
       - ./environments/redis.env
     networks:
       - 'nextmu'
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli", "-a", "$$REDIS_PASSWORD", "ping"]
       interval: '10s'
       timeout: '5s'
       retries: 3

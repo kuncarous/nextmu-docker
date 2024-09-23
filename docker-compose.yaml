@@ -68,9 +68,25 @@ services:
       - nextmu-mongodb
     env_file:
       - ./environments/mongo.env
-    networks:
-      - 'nextmu'
-    entrypoint: [ "bash", "-c", "sleep 10 && mongosh mongodb://$$MONGO_INITDB_ROOT_USERNAME:$$MONGO_INITDB_ROOT_PASSWORD@nextmu-mongodb:27017/test?authSource=admin --eval 'rs.initiate()'"]
+    network_mode: host
+    entrypoint: [
+      "bash",
+      "-c",
+      "
+      sleep 10 && \
+      mongosh mongodb://$$MONGO_INITDB_ROOT_USERNAME:$$MONGO_INITDB_ROOT_PASSWORD@localhost:27017/test?authSource=admin --eval ' 
+        try { \
+          if (!rs.status().ok) { \
+            rs.initiate({_id: \"rs0\", members: [{ _id: 0, host: \"localhost:27017\" }] }); \
+          } else { \
+            print(\"Replica set already initialized.\"); \
+          } \
+        } catch(e) { \
+          rs.initiate({_id: \"rs0\", members: [{ _id: 0, host: \"localhost:27017\" }] }); \
+        }
+      '
+      "
+    ]
 
   nextmu-redis:
     restart: 'always'

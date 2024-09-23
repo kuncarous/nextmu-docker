@@ -49,7 +49,7 @@ services:
     networks:
       - 'nextmu'
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh mongodb://$$MONGO_INITDB_ROOT_USERNAME:$$MONGO_INITDB_ROOT_PASSWORD@localhost:27017/test?authSource=admin&replicaSet=rs0&directConnection=true --quiet | grep -q 1
+      test: echo 'db.runCommand("ping").ok' | mongosh mongodb://$$MONGO_INITDB_ROOT_USERNAME:$$MONGO_INITDB_ROOT_PASSWORD@localhost:27017/test?authSource=admin&directConnection=true --quiet | grep -q 1
       interval: '10s'
       timeout: '30s'
       retries: 5
@@ -70,7 +70,7 @@ services:
       - ./environments/mongo.env
     networks:
       - 'nextmu'
-    entrypoint: [ "bash", "-c", "sleep 10 && mongosh mongodb://$$MONGO_INITDB_ROOT_USERNAME:$$MONGO_INITDB_ROOT_PASSWORD@nextmu-mongodb:27017/test?authSource=admin&directConnection=true --eval 'rs.initiate()'"]
+    entrypoint: [ "bash", "-c", "sleep 10 && mongosh mongodb://$$MONGO_INITDB_ROOT_USERNAME:$$MONGO_INITDB_ROOT_PASSWORD@nextmu-mongodb:27017/test?authSource=admin --eval 'rs.initiate()'"]
 
   nextmu-redis:
     restart: 'always'

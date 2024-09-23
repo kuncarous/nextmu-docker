@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:url";
 import path from "node:path";
 import axios from "axios";
+import { randomBytes } from "node:crypto";
 
 // Enums (since can't be imported in linux)
 enum OIDCResponseType {
@@ -461,10 +462,22 @@ REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL`
     );
 }
 
+async function generateKeyFile(filePath: string): Promise<void> {
+    try {
+      const key = randomBytes(756).toString('base64'); 
+      writeFileSync(filePath, key); // Set permissions to 400 (read for owner only)
+      console.log(`Key file generated successfully at ${filePath}`);
+    } catch (error) {
+      console.error('Error generating key file:', error);
+      throw error; // Re-throw the error for proper handling in your script
+    }
+}
+
 async function generateMongoEnvironment()
 {
     const jsonPath = path.resolve(initOutputDir, 'mongo.json');
     const envPath = path.resolve(initOutputDir, 'mongo.env');
+    const keyPath = path.resolve(initOutputDir, 'mongo.key');
 
     if (existsSync(jsonPath)) {
         MongoEnv = JSON.parse(readFileSync(jsonPath).toString());
@@ -483,6 +496,8 @@ async function generateMongoEnvironment()
 `MONGO_INITDB_ROOT_USERNAME="${MongoEnv.username}"
 MONGO_INITDB_ROOT_PASSWORD="${MongoEnv.password}"`
     );
+
+    await generateKeyFile(keyPath);
 }
 
 async function generatePostgresEnvironment()
